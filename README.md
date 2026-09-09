@@ -37,7 +37,7 @@ const LOCATIONS = [
 ];
 ```
 
-Add, remove, or edit entries as needed. Coordinates can be found by searching "<place> coordinates" on Google Maps.
+Add, remove, or edit entries as needed. Coordinates can be found by searching "`<place>` coordinates" on Google Maps.
 
 ## Calculation method
 
