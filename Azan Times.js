@@ -78,6 +78,12 @@ function formatTime(t) {
   return `${hour12}:${String(m).padStart(2, "0")}`;
 }
 
+function getNextMidnight() {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  return next;
+}
+
 async function buildWidget(idx) {
   const loc = LOCATIONS[idx];
   let timings;
@@ -195,6 +201,12 @@ async function buildWidget(idx) {
   // footer.font = FONTS.footer;
   // footer.textColor = THEME.footerText;
   // footer.centerAlignText();
+
+  // Hint to iOS: don't bother refreshing until the day changes —
+  // prayer times are fixed for the whole day, so there's no need for
+  // multiple refreshes. iOS may still refresh earlier at its own discretion,
+  // but this discourages unnecessary ones.
+  w.refreshAfterDate = getNextMidnight();
 
   return w;
 }
