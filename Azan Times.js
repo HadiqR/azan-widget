@@ -1,7 +1,7 @@
-// Azan Times - Scriptable widget
+// Azan Times — Scriptable widget
 // Shows Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha for a saved location.
 // Tap the widget to switch between your saved locations.
-// Data source: Aladhan API (https://aladhan.com) - Method: University of Islamic Sciences, Karachi (ID 1)
+// Data source: Aladhan API (https://aladhan.com) — Method: University of Islamic Sciences, Karachi (ID 1)
 
 const LOCATIONS = [
   { name: "New York", lat: 40.7128, lon: -74.0060 },
@@ -119,7 +119,7 @@ async function buildWidget(idx) {
   const FONTS = {
     city: Font.semiboldSystemFont(13),
     date: Font.regularSystemFont(11),
-    time: new Font("DINCondensed-Bold", 28), // CHANGED: Increased font size from 22 to 28
+    time: new Font("DINCondensed-Bold", 22), // Tall condensed font sized to fit 6 columns
     label: Font.mediumSystemFont(10),
     footer: Font.systemFont(8.5),
   };
@@ -202,7 +202,7 @@ async function buildWidget(idx) {
   // footer.textColor = THEME.footerText;
   // footer.centerAlignText();
 
-  // Hint to iOS: don't bother refreshing until the day changes -
+  // Hint to iOS: don't bother refreshing until the day changes —
   // prayer times are fixed for the whole day, so there's no need for
   // multiple refreshes. iOS may still refresh earlier at its own discretion,
   // but this discourages unnecessary ones.
