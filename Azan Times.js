@@ -4,9 +4,9 @@
 // Data source: Aladhan API (https://aladhan.com) — Method: University of Islamic Sciences, Karachi (ID 1)
 
 const LOCATIONS = [
-  { name: "New York", lat: 11.2588, lon: 75.7804 },
-  { name: "London", lat: 12.9500, lon: 77.6608 },
-  { name: "Tokyo", lat: 12.9351, lon: 77.6398 },
+  { name: "Kozhikode", lat: 11.2588, lon: 75.7804 },
+  { name: "Bengaluru", lat: 12.9716, lon: 77.5946 },
+  { name: "Chennai", lat: 13.0827, lon: 80.2707 },
 ];
 
 const METHOD = 1; // University of Islamic Sciences, Karachi
@@ -71,12 +71,11 @@ async function fetchTimings(loc) {
 }
 
 function formatTime(t) {
-  // Convert "HH:MM" 24hr to 12hr with am/pm, lowercase, no leading zero
+  // Convert "HH:MM" 24hr to clean 12hr format (without am/pm to avoid column clipping)
   const [h, m] = t.split(":").map(Number);
-  const period = h >= 12 ? "pm" : "am";
   let hour12 = h % 12;
   if (hour12 === 0) hour12 = 12;
-  return `${hour12}:${String(m).padStart(2, "0")}${period}`;
+  return `${hour12}:${String(m).padStart(2, "0")}`;
 }
 
 async function buildWidget(idx) {
@@ -94,63 +93,108 @@ async function buildWidget(idx) {
       stale = true;
     } else {
       const w = new ListWidget();
-      w.addText("Couldn't load prayer times. Open app to retry.");
+      w.backgroundColor = new Color("#111113");
+      const errText = w.addText("Couldn't load prayer times. Open app to retry.");
+      errText.textColor = Color.white();
       return w;
     }
   }
 
-  const w = new ListWidget();
-  w.backgroundColor = new Color("#101418");
-  w.setPadding(14, 16, 14, 16);
+  // Visual Theme
+  const THEME = {
+    bg: new Color("#111113"),
+    headerText: new Color("#FFFFFF"),
+    dateText: new Color("#8E8E93"),
+    timeText: new Color("#FF453A"),        // Tall bold red digits
+    labelText: new Color("#98989D"),       // Clean muted gray labels
+    footerText: new Color("#48484A"),
+  };
 
-  // Header: location name
-  const header = w.addText(loc.name.toUpperCase());
-  header.font = Font.boldSystemFont(12);
-  header.textColor = new Color("#8AB4F8");
+  const FONTS = {
+    city: Font.semiboldSystemFont(13),
+    date: Font.regularSystemFont(11),
+    time: new Font("DINCondensed-Bold", 22), // Tall condensed font sized to fit 6 columns
+    label: Font.mediumSystemFont(10),
+    footer: Font.systemFont(8.5),
+  };
+
+  const w = new ListWidget();
+  w.backgroundColor = THEME.bg;
+  w.setPadding(12, 10, 10, 10);
+
+  // --- Top Breathing Room ---
   w.addSpacer(2);
 
-  const dateText = w.addText(timings.date + (stale ? "  (cached)" : ""));
-  dateText.font = Font.systemFont(10);
-  dateText.textColor = new Color("#888888");
-  w.addSpacer(8);
+  // --- Header Stack: City & Formatted Date ---
+  const headerStack = w.addStack();
+  headerStack.layoutHorizontally();
+  headerStack.centerAlignContent();
+  headerStack.setPadding(0, 4, 0, 4);
 
-  const rows = [
-    ["Fajr", timings.fajr],
-    ["Sunrise", timings.sunrise],
-    ["Dhuhr", timings.dhuhr],
-    ["Asr", timings.asr],
-    ["Maghrib", timings.maghrib],
-    ["Isha", timings.isha],
+  const cityText = headerStack.addText(loc.name);
+  cityText.font = FONTS.city;
+  cityText.textColor = THEME.headerText;
+
+  headerStack.addSpacer();
+
+  const dateText = headerStack.addText(timings.date + (stale ? " (cached)" : ""));
+  dateText.font = FONTS.date;
+  dateText.textColor = THEME.dateText;
+
+  // --- Center Vertical Spacing ---
+  w.addSpacer();
+
+  // --- 6-Column Prayer Grid ---
+  const prayers = [
+    { label: "Fajr", time: formatTime(timings.fajr) },
+    { label: "Sunrise", time: formatTime(timings.sunrise) },
+    { label: "Dhuhr", time: formatTime(timings.dhuhr) },
+    { label: "Asr", time: formatTime(timings.asr) },
+    { label: "Maghrib", time: formatTime(timings.maghrib) },
+    { label: "Isha", time: formatTime(timings.isha) },
   ];
 
-  for (const [label, time] of rows) {
-    const row = w.addStack();
-    row.layoutHorizontally();
-    row.centerAlignContent();
+  const gridStack = w.addStack();
+  gridStack.layoutHorizontally();
+  gridStack.centerAlignContent();
 
-    const labelText = row.addText(label);
-    labelText.font = label === "Sunrise"
-      ? Font.italicSystemFont(13)
-      : Font.mediumSystemFont(13);
-    labelText.textColor = label === "Sunrise"
-      ? new Color("#AAAAAA")
-      : Color.white();
+  for (let i = 0; i < prayers.length; i++) {
+    const item = prayers[i];
 
-    row.addSpacer();
+    const colStack = gridStack.addStack();
+    colStack.layoutVertically();
+    colStack.centerAlignContent();
 
-    const timeText = row.addText(formatTime(time));
-    timeText.font = Font.boldSystemFont(13);
-    timeText.textColor = label === "Sunrise"
-      ? new Color("#AAAAAA")
-      : new Color("#8AB4F8");
+    // 1. Time (Tall Red Condensed Font)
+    const timeElem = colStack.addText(item.time);
+    timeElem.font = FONTS.time;
+    timeElem.textColor = THEME.timeText;
+    timeElem.centerAlignText();
+    timeElem.lineLimit = 1;
+    timeElem.minimumScaleFactor = 0.6;
 
-    w.addSpacer(4);
+    colStack.addSpacer(2);
+
+    // 2. Label (Neutral Gray)
+    const labelElem = colStack.addText(item.label);
+    labelElem.font = FONTS.label;
+    labelElem.textColor = THEME.labelText;
+    labelElem.centerAlignText();
+    labelElem.lineLimit = 1;
+    labelElem.minimumScaleFactor = 0.7;
+
+    if (i < prayers.length - 1) {
+      gridStack.addSpacer();
+    }
   }
 
-  w.addSpacer(2);
+  // --- Bottom Spacing & Subtle Footer ---
+  w.addSpacer();
+
   const footer = w.addText("Tap to switch location");
-  footer.font = Font.systemFont(9);
-  footer.textColor = new Color("#555555");
+  footer.font = FONTS.footer;
+  footer.textColor = THEME.footerText;
+  footer.centerAlignText();
 
   return w;
 }
