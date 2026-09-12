@@ -191,10 +191,10 @@ async function buildWidget(idx) {
   // --- Bottom Spacing & Subtle Footer ---
   w.addSpacer();
 
-  const footer = w.addText("Tap to switch location");
-  footer.font = FONTS.footer;
-  footer.textColor = THEME.footerText;
-  footer.centerAlignText();
+  // const footer = w.addText("Tap to switch location");
+  // footer.font = FONTS.footer;
+  // footer.textColor = THEME.footerText;
+  // footer.centerAlignText();
 
   return w;
 }
