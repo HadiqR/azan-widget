@@ -4,9 +4,9 @@
 // Data source: Aladhan API (https://aladhan.com) — Method: University of Islamic Sciences, Karachi (ID 1)
 
 const LOCATIONS = [
-  { name: "Kozhikode", lat: 11.2588, lon: 75.7804 },
-  { name: "Bengaluru", lat: 12.9716, lon: 77.5946 },
-  { name: "Chennai", lat: 13.0827, lon: 80.2707 },
+  { name: "New York", lat: 40.7128, lon: -74.0060 },
+  { name: "London", lat: 51.5074, lon: -0.1278 },
+  { name: "Tokyo", lat: 35.6895, lon: 139.6917 },
 ];
 
 const METHOD = 1; // University of Islamic Sciences, Karachi
